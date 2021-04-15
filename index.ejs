@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Chat</title>
+<style>
+body {font-family: Arial;}
+#bottomBar {
+  background-color: black; 
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  vertical-align: middle;
+  width: 100vw;
+  height: 24px;
+  padding: 16px;
+}
+#messages {
+  padding: 0px 10px;
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  display:block;
+  position: absolute;
+  width: calc(100vw - 8px);
+  height: calc(100% - 74px);
+  overflow: scroll;
+}
+input {width: calc(100% - 100px)}
+</style>
+<script src="../../socket.io/socket.io.js"></script>
+</head>
+<body onload="load()">
+<ul id="messages"></ul>
+<div id="bottomBar">
+<input type="text" id="text" name="text">
+<button id="submit">Submit</button>
+</div>
+<script>
+let socket = io();
+var canSend = true;
+socket.on('chat_message', (data) => {
+  const li = document.createElement('li');
+  li.innerHTML = data;
+  document.getElementById('messages').appendChild(li);
+  li.scrollIntoView(false);
+})
+    
+document.getElementById('submit').onclick = () => {
+  if (document.getElementById('text').value != '') {
+    socket.emit('chat_message', document.getElementById('text').value);
+    document.getElementById('text').value = "";
+  }
+}
+
+document.getElementById('text').onkeypress = (event) => {
+  if (event.keyCode === 13) {
+    event.preventDefault();
+    document.getElementById("submit").click();
+  }
+}
+
+function load() {
+  var name = prompt("Enter your name");
+  if (name == null || name.replaceAll(' ', '') == '') {
+    const num = Math.floor(Math.random() * 9000) + 1000;
+    name = "Anonymous" + num;
+  }
+  socket.emit('username', name);
+}
+</script>
+</body>
+</html>
