@@ -29,10 +29,10 @@ input {width: calc(100% - 100px)}
 </style>
 <script src="../../socket.io/socket.io.js"></script>
 </head>
-<body onload="load()">
+<body>
 <ul id="messages"></ul>
 <div id="bottomBar">
-<input type="text" id="text" name="text">
+<input type="text" id="text" name="text" maxlength="100" autocomplete="off" placeholder="Message">
 <button id="submit">Submit</button>
 </div>
 <script>
@@ -44,12 +44,11 @@ socket.on('chat_message', (data) => {
   document.getElementById('messages').appendChild(li);
   li.scrollIntoView(false);
 })
-    
+socket.on('cls', () => {document.getElementById('messages').innerHTML = '';})
+
 document.getElementById('submit').onclick = () => {
-  if (document.getElementById('text').value != '') {
-    socket.emit('chat_message', document.getElementById('text').value);
-    document.getElementById('text').value = "";
-  }
+  socket.emit('chat_message', document.getElementById('text').value);
+  document.getElementById('text').value = "";
 }
 
 document.getElementById('text').onkeypress = (event) => {
@@ -57,15 +56,6 @@ document.getElementById('text').onkeypress = (event) => {
     event.preventDefault();
     document.getElementById("submit").click();
   }
-}
-
-function load() {
-  var name = prompt("Enter your name");
-  if (name == null || name.replaceAll(' ', '') == '') {
-    const num = Math.floor(Math.random() * 9000) + 1000;
-    name = "Anonymous" + num;
-  }
-  socket.emit('username', name);
 }
 </script>
 </body>
